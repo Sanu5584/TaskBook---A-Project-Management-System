@@ -12,7 +12,7 @@ const projectNoteSchema = new Schema(
             ref: "User",
             required: true
         },
-        content: { // add option for upload too for images
+        content: { // add option for upload of images, and videos and links
             type: String,
             required: true
         }
