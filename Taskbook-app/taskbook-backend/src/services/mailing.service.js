@@ -10,7 +10,7 @@ const sendMail = async (options) => {
         product: {
             name: "Taskbook app",
             link: "https://github.com/Sanu5584/TaskBook---A-Project-Management-System",
-            logo: "../../public/Taskbook-logo.png",
+            logo: "./assets/Taskbook-logo.png",
         }
     })
 
@@ -29,7 +29,7 @@ const sendMail = async (options) => {
     })
 
     const emailInfo = {
-        from: process.env.SMTP_MAILTRAP_USERNAME,
+        from: process.env.SMTP_MAILTRAP_USER,
         to: username,
         subject: options.subject,
         text: textualEmail,
@@ -43,5 +43,7 @@ const sendMail = async (options) => {
         throw new ApiError(400, "Failed to send the email", error)
     }
 }
+
+
 
 export { sendMail }
