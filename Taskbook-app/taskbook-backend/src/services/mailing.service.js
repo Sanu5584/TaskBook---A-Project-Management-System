@@ -30,7 +30,7 @@ const sendMail = async (options) => {
 
     const emailInfo = {
         from: process.env.SMTP_MAILTRAP_USER,
-        to: username,
+        to: options.email,
         subject: options.subject,
         text: textualEmail,
         html: emailHtml
@@ -44,6 +44,24 @@ const sendMail = async (options) => {
     }
 }
 
+const emailVerificationMailgenContent = (user, verificationUrl) => {
+    return {
+        body: {
+        name: user,
+        intro: 'Welcome to Taskbook! We\'re very excited to have you on board.',
+        action: {
+            instructions: 'To get started with Taskbook, please click here:',
+            button: {
+                color: '#22BC66', // Optional action button color
+                text: 'Verify your account',
+                link: verificationUrl
+            }
+        },
+        outro: 'This email is automated, so don\'t reply, if you need any help feel free to contact our customer support'
+    }
+
+    }
+}
 
 
-export { sendMail }
+export { sendMail, emailVerificationMailgenContent }

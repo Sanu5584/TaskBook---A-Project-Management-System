@@ -66,7 +66,6 @@ export const userSchema = new Schema(
     }
 )
 
-const User = mongoose.model("User", userSchema)
 
 userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) return next();
@@ -74,11 +73,11 @@ userSchema.pre("save", async function (next) {
     next();
 })
 
-userSchema.methods.isPasswordMatch = async function(password){
+userSchema.methods.isPasswordMatch = async function (password) {
     return await bcrypt.compare(password, this.password)
 }
 
-userSchema.methods.generateAccessToken = function(){
+userSchema.methods.generateAccessToken = function () {
     return jwt.sign(
         {
             _id: this._id,
@@ -92,7 +91,7 @@ userSchema.methods.generateAccessToken = function(){
     )
 }
 
-userSchema.methods.generateRefreshToken = function(){
+userSchema.methods.generateRefreshToken = function () {
     return jwt.sign(
         {
             _id: this._id,
@@ -106,14 +105,16 @@ userSchema.methods.generateRefreshToken = function(){
     )
 }
 
-userSchema.generateToken = function(){
+userSchema.generateToken = function () {
     const unHashedToken = crypto.randomBytes(32).toString("hex")
 
     const hashedToken = crypto.createHash("sha256").update(unHashedToken).digest("hex")
 
     const tokenExpiry = Date.now() + (10 * 60 * 1000)
 
-    return {unHashedToken, hashedToken, tokenExpiry}
+    return { unHashedToken, hashedToken, tokenExpiry }
 }
+
+const User = mongoose.model("User", userSchema)
 
 export default User

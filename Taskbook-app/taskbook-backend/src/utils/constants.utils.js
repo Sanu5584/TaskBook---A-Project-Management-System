@@ -13,3 +13,5 @@ export const TaskStatusEnum = {
 }
 
 export const AvailableTaskStatus = Object.values(TaskStatusEnum)
+
+export const AvailableMimeTypes = ["application/pdf", "image/jpeg", "image/png", "text/plain", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]
