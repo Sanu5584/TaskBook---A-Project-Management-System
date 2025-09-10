@@ -105,7 +105,7 @@ userSchema.methods.generateRefreshToken = function () {
     )
 }
 
-userSchema.generateToken = function () {
+userSchema.methods.generateToken = function () {
     const unHashedToken = crypto.randomBytes(32).toString("hex")
 
     const hashedToken = crypto.createHash("sha256").update(unHashedToken).digest("hex")

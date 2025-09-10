@@ -50,7 +50,7 @@ const emailVerificationMailgenContent = (user, verificationUrl) => {
         name: user,
         intro: 'Welcome to Taskbook! We\'re very excited to have you on board.',
         action: {
-            instructions: 'To get started with Taskbook, please click here:',
+            instructions: 'The link will be expired in next 10 mins, please click here:',
             button: {
                 color: '#22BC66', // Optional action button color
                 text: 'Verify your account',
