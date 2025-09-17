@@ -6,11 +6,10 @@ import { ApiError } from "../utils/api-error.utils.js";
 /************* Try and test out the methods in express-validators **************/
 
 const validate = asyncHandler(async function (req, res, next) {
-    const errors = validationResult(req)
 
-    console.log(errors); //! Log it to see what was present in the errors variable
+    const errors = validationResult(req)
     
-    if (!errors) {
+    if (errors.isEmpty()) {
         return next()
     }
 
@@ -20,6 +19,9 @@ const validate = asyncHandler(async function (req, res, next) {
             [err.path]: err.msg
         })
     })
+
+    console.log("Errors", errors, "\n", "ExtractedErrors :", extractedError);
+
 
     throw new ApiError(422, "Recieved data is not valid", extractedError)
 })

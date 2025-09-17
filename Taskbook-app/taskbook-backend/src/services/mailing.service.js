@@ -3,10 +3,10 @@ import Mailgen from "mailgen"
 
 import { ApiError } from "../utils/api-error.utils.js"
 
-const sendMail = async (options) => {
+const sendMail = async ({ email, subject, mailgenContent }) => {
 
     const mailGenerator = new Mailgen({
-        theme: 'cerberus',
+        theme: 'default',
         product: {
             name: "Taskbook app",
             link: "https://github.com/Sanu5584/TaskBook---A-Project-Management-System",
@@ -14,9 +14,9 @@ const sendMail = async (options) => {
         }
     })
 
-    const textualEmail = mailGenerator.generatePlainText(options.mailgenContent)
+    const textualEmail = mailGenerator.generatePlaintext(mailgenContent)
 
-    const emailHtml = mailGenerator.generate(options.mailgenContent)
+    const emailHtml = mailGenerator.generate(mailgenContent)
 
     const transporter = nodemailer.createTransport({
         host: process.env.SMTP_MAILTRAP_HOST,
@@ -30,8 +30,8 @@ const sendMail = async (options) => {
 
     const emailInfo = {
         from: process.env.SMTP_MAILTRAP_USER,
-        to: options.email,
-        subject: options.subject,
+        to: email,
+        subject: subject,
         text: textualEmail,
         html: emailHtml
     }
@@ -47,21 +47,38 @@ const sendMail = async (options) => {
 const emailVerificationMailgenContent = (user, verificationUrl) => {
     return {
         body: {
-        name: user,
-        intro: 'Welcome to Taskbook! We\'re very excited to have you on board.',
-        action: {
-            instructions: 'The link will be expired in next 10 mins, please click here:',
-            button: {
-                color: '#22BC66', // Optional action button color
-                text: 'Verify your account',
-                link: verificationUrl
-            }
-        },
-        outro: 'This email is automated, so don\'t reply, if you need any help feel free to contact our customer support'
-    }
+            name: user,
+            intro: 'Welcome to Taskbook! We\'re very excited to have you on board.',
+            action: {
+                instructions: 'The link will be expired in next 10 mins, please click here:',
+                button: {
+                    color: '#22BC66', // Optional action button color
+                    text: 'Verify your account',
+                    link: verificationUrl
+                }
+            },
+            outro: 'This email is automated, so don\'t reply, if you need any help feel free to contact our customer support'
+        }
 
     }
 }
 
+const forgotPasswordRequestMailGenContent = (user, verificationUrl) => {
+    return {
+        body: {
+            name: user,
+            intro: "Welcome to Taskbook! we are happy to solve your quries",
+            action: {
+                instructions: "The link will be expired in next 10 mins, please click the here to add new password",
+                button: {
+                    color: '#22BC66', // Optional action button color
+                    text: 'Replace new Password',
+                    link: verificationUrl
+                },
+            },
+            outro: 'This email is automated, so don\'t reply, if you need any help feel free to contact our customer support'
+        }
+    }
+}
 
-export { sendMail, emailVerificationMailgenContent }
+export { sendMail, emailVerificationMailgenContent, forgotPasswordRequestMailGenContent }

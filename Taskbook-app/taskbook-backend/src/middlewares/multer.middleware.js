@@ -1,5 +1,5 @@
 import multer from "multer"
-import { ApiError } from "../utils/api-error.utils"
+import { ApiError } from "../utils/api-error.utils.js"
 import { AvailableMimeTypes } from "../utils/constants.utils.js"
 
 const storage = multer.diskStorage({
@@ -25,3 +25,5 @@ const upload = multer({
         }
     }
 })
+
+export {upload}

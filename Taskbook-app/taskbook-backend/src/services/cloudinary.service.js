@@ -1,5 +1,5 @@
 import { v2 as cloudinary } from "cloudinary"
-import fs from "fs:node"
+import fs from "node:fs"
 
 cloudinary.config({
     secure: true
