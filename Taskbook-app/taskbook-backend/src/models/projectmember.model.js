@@ -3,7 +3,7 @@ import mongoose, { Schema } from "mongoose";
 import { UserRolesEnum, AvailableUserRoles } from "../utils/constants.utils.js";
 
 const projectMember = new Schema(
-    {
+    { 
         user: {
             type: Schema.Types.ObjectId,
             ref: "User",
