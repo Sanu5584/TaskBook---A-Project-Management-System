@@ -1,6 +1,5 @@
-import { hashPassword } from "../services/tokens.service.js"
-
 import mongoose, { Schema } from "mongoose"
+import { userRoles, AvailableUserRoles } from "../utils/permissions.utils.js"
 
 export const userSchema = new Schema(
     {
@@ -42,6 +41,11 @@ export const userSchema = new Schema(
         isEmailVerified: {
             type: Boolean,
             default: false,
+        },
+        role: {
+            type: String,
+            enum: AvailableUserRoles,
+            default: userRoles.Member
         },
         refreshToken: {
             type: String
