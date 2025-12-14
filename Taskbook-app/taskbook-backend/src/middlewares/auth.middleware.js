@@ -14,7 +14,7 @@ const isLoggedIn = asyncHandler(async (req, res, next) => {
 
     // check the accessToken is expired or not
     const decodedUser = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET)
-    console.log("decoded data :", decodedUser);
+    // console.log("decoded data :", decodedUser);
 
     // add the user._id into the req object and next
     req.user = decodedUser

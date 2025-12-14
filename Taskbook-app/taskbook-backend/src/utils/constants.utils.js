@@ -1,11 +1,3 @@
-export const UserRolesEnum = {
-    ADMIN: "admin",
-    PROJECT_ADMIN: "project_admin",
-    MEMBER: "member",
-}
-
-export const AvailableUserRoles = Object.values(UserRolesEnum)
-
 export const TaskStatusEnum = {
     TODO: "todo",
     IN_PROGRESS: "in_progress",
@@ -14,4 +6,112 @@ export const TaskStatusEnum = {
 
 export const AvailableTaskStatus = Object.values(TaskStatusEnum)
 
-export const AvailableMimeTypes = ["application/pdf", "image/jpeg", "image/png", "text/plain", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]
+export const avatarMimetype = ["image/jpeg", "image/png", "image/avif", "image/webp"]
+
+export const ProjectStatusEnum = {
+    PENDING: "pending",
+    IN_PROGRESS: "in_progress",
+    COMPLETED: "completed"
+}
+
+export const AvailableProjectStatus = Object.values(ProjectStatusEnum)
+
+export const userRolesEnum = {
+    Admin: "Admin",
+    SubAdmin: "SubAdmin",
+    ProjectAdmin: "ProjectAdmin",
+    Member: "Member"
+}
+
+export const userPermissions = {
+    Admin: [
+        //* for projects
+        "create:project",
+        "delete:project",
+        "edit:project",
+        "view:project",
+        "addMember:project",
+        "updateMember:project",
+        "removeMember:project",
+
+        //* for tasks
+        "create:task",
+        "delete:task",
+        "edit:task",
+        "view:task",
+        "assignMembers:task",
+        "removeAssignedMembers:task",
+        "updateAssignedMembers:task",
+
+        //* for subTasks
+        "create:subTask",
+        "delete:subTask",
+        "view:subTask",
+        "edit:subTask"
+    ],
+    SubAdmin: [
+        //* for projects
+        "create:project",
+        "edit:project",
+        "view:project",
+        "addMember:project",
+        "updateMember:project",
+        "removeMember:project",
+
+        //* for tasks
+        "edit:task",
+        "view:task",
+
+        //* for subTasks
+        "view:subTask",
+        "edit:subTask"
+    ],
+    ProjectAdmin: [
+        //* for projects
+        "edit:project",
+        "view:project",
+        "addMember:project",
+        "updateMember:project",
+        "removeMember:project",
+
+        //* for tasks
+        "create:task",
+        "delete:task",
+        "edit:task",
+        "view:task",
+        "assignMembers:task",
+        "removeAssignedMembers:task",
+        "updateAssignedMembers:task",
+
+        //* for subTasks
+        "create:subTask",
+        "delete:subTask",
+        "view:subTask",
+        "edit:subTask"
+    ],
+    Member: [
+        //* for projects
+        "view:project",
+
+        //* for tasks
+        "create:task",
+        "delete:task",
+        "edit:task",
+        "view:task",
+        "assignMembers:task",
+        "removeAssignedMembers:task",
+        "updateAssignedMembers:task",
+
+        //* for subTasks
+        "create:subTask",
+        "delete:subTask",
+        "view:subTask",
+        "edit:subTask"
+    ],
+    // WorkspaceMemberReadOnly: [
+    //     //* for projects
+    //     "view:project"
+    // ]
+}
+
+export const AvailableUserRolesPermission = Object.keys(userPermissions)

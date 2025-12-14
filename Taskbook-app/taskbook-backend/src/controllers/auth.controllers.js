@@ -4,9 +4,9 @@ import { ApiError } from "../utils/api-error.utils.js"
 import { ApiResponse } from "../utils/api-response.utils.js"
 import { asyncHandler } from "../utils/async-handler.utils.js"
 import User from "../models/user.model.js"
-import { sendMail, emailVerificationMailgenContent, forgotPasswordRequestMailGenContent } from "../services/mailing.service.js"
-import { uploadOnCloudinary } from "../services/cloudinary.service.js"
-import { hashPassword, generateAccessToken, generateRefreshToken, isPasswordMatch, generateToken, hashToken } from "../services/tokens.service.js"
+import { sendMail, emailVerificationMailgenContent, forgotPasswordRequestMailGenContent } from "../configs/mailing.config.js"
+import { uploadOnCloudinary } from "../configs/cloudinary.config.js"
+import { hashPassword, generateAccessToken, generateRefreshToken, isPasswordMatch, generateToken, hashToken } from "../configs/tokens.config.js"
 
 const register = asyncHandler(async (req, res) => {
 
@@ -35,7 +35,7 @@ const register = asyncHandler(async (req, res) => {
         email,
         fullname,
         username,
-        password: hashedPassword,
+        password: hashedPassword
     })
 
     // - generate a verification token
@@ -197,7 +197,6 @@ const resendEmailVerification = asyncHandler(async (req, res) => {
             new ApiResponse(201, "Verification mail sent successfully", createdUser)
         )
 })
-
 
 const login = asyncHandler(async (req, res) => {
     // get data from the body

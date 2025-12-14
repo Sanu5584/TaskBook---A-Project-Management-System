@@ -2,11 +2,12 @@ import nodemailer from "nodemailer"
 import Mailgen from "mailgen"
 
 import { ApiError } from "../utils/api-error.utils.js"
+import { text } from "express"
 
 const sendMail = async ({ email, subject, mailgenContent }) => {
 
     const mailGenerator = new Mailgen({
-        theme: 'default',
+        theme: 'neopolitan',
         product: {
             name: "Taskbook app",
             link: "https://github.com/Sanu5584/TaskBook---A-Project-Management-System",

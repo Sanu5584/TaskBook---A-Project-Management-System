@@ -8,7 +8,7 @@ import { ApiError } from "../utils/api-error.utils.js";
 const validate = asyncHandler(async function (req, res, next) {
 
     const errors = validationResult(req)
-    
+
     if (errors.isEmpty()) {
         return next()
     }

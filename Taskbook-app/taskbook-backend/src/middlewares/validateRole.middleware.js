@@ -1,9 +1,36 @@
 import { asyncHandler } from "../utils/async-handler.utils.js";
 import { ApiError } from "../utils/api-error.utils.js";
-import mongoose from "mongoose";
-import User from "../models/user.model.js"
-import { AvailableUserRoles, UserRolesEnum } from "../utils/constants.utils.js";
 import { validatePermission } from "../utils/permissions.utils.js";
+
+
+const hasPermission = (permission) => {
+    // get the access permit action of features from the middleware
+    return asyncHandler(async (req, res, next) => {
+        // get the user id from the req object
+        const userId = req?.user._id
+
+        // get the projectId from the params
+        const { projectId } = req.params
+
+        // validate the userId and projectId
+        if (!userId || !projectId) {
+            throw new ApiError(400, "Missing User or Project Id")
+        }
+
+        // run accessPermit function to validate the permission was relates to the user's and it's role
+        const isAccessible = await validatePermission(permission, userId, projectId)
+
+        // if not accessable then throw error
+        if (!isAccessible) {
+            throw new ApiError(401, "Unauthorized Access")
+        }
+        // else run next() function
+        next()
+    })
+}
+
+
+export { hasPermission }
 
 // const checkAdmin = asyncHandler(async (req, res, next) => {
 //     // get the user from the req object
@@ -33,32 +60,3 @@ import { validatePermission } from "../utils/permissions.utils.js";
 //         throw new ApiError(403, "Admin access only")
 //     }
 // })
-
-const verifyRole = (permission) => {
-    // get the access permit action of features from the middleware
-    return asyncHandler(async(req, res, next) => {
-        // get the user id from the req object
-        const userId = req?.user._id
-
-        // get the projectId from the params
-        const {projectId} = req.params
-        
-        // validate the userId and projectId
-        if(!userId || !projectId){
-            throw new ApiError(400, "Missing User or Project Id")
-        }
-        
-        // run accessPermit function to validate the permission was relates to the user's and it's role
-        const isAccessible = await validatePermission(permission, userId, projectId) 
-        
-        // if not accessable then throw error
-        if(!isAccessible){
-            throw new ApiError(401, "Unauthorized Access")
-        }
-        // else run next() function
-        next()
-    })
-}
-
-
-export { verifyRole }

@@ -1,94 +1,6 @@
 import { ApiError } from "./api-error.utils.js"
+import { AvailableUserRolesPermission, userPermissions } from "./constants.utils.js"
 import ProjectMember from "../models/projectmember.model.js"
-
-const userRoles = {
-    Admin: [
-        //* for projects
-        "create:project",
-        "delete:project",
-        "edit:project",
-        "view:project",
-        "addMember:project",
-        "removeMember:project",
-
-        //* for tasks
-        "create:task",
-        "delete:task",
-        "edit:task",
-        "view:task",
-        "assignMembers:task",
-        "removeAssignedMembers:task",
-        "updateAssignedMembers:task",
-
-        //* for subTasks
-        "create:subTask",
-        "delete:subTask",
-        "view:subTask",
-        "edit:subTask"
-    ],
-    SubAdmin: [
-        //* for projects
-        "create:project",
-        "edit:project",
-        "view:project",
-        "addMember:project",
-        "removeMember:project",
-
-        //* for tasks
-        "edit:task",
-        "view:task",
-
-        //* for subTasks
-        "view:subTask",
-        "edit:subTask"
-    ],
-    ProjectMember: [
-        //* for projects
-        "edit:project",
-        "view:project",
-        "addMember:project",
-        "removeMember:project",
-        "viewMember:project",
-
-        //* for tasks
-        "create:task",
-        "delete:task",
-        "edit:task",
-        "view:task",
-        "assignMembers:task",
-        "removeAssignedMembers:task",
-        "updateAssignedMembers:task",
-
-        //* for subTasks
-        "create:subTask",
-        "delete:subTask",
-        "view:subTask",
-        "edit:subTask"
-    ],
-    Member: [
-        //* for projects
-        "view:project",
-
-        //* for tasks
-        "create:task",
-        "delete:task",
-        "edit:task",
-        "view:task",
-        "assignMembers:task",
-        "removeAssignedMembers:task",
-        "updateAssignedMembers:task",
-
-        //* for subTasks
-        "create:subTask",
-        "delete:subTask",
-        "view:subTask",
-        "edit:subTask"
-    ],
-}
-
-const AvailableUserRoles = Object.keys(userRoles)
-
-// const permissionsList = Object.values(userRoles).flat()
 
 const validatePermission = async function (permission, userId, projectId) {
     try {
@@ -97,13 +9,18 @@ const validatePermission = async function (permission, userId, projectId) {
             project: projectId
         })
 
+        if (!projectmember) {
+            throw new ApiError(401, "Unauthorized Access")
+        }
+
         const userRole = projectmember?.role
 
-        if (!AvailableUserRoles.includes(userRole)) {
+        if (!AvailableUserRolesPermission.includes(userRole)) {
             throw new ApiError(401, "Unauthorized Request")
         }
 
-        const incomingPermission = userRoles[userRole]
+        const incomingPermission = userPermissions[userRole]
+
         const hasPermission = incomingPermission.includes(permission)
 
         if (!hasPermission) {
@@ -113,11 +30,11 @@ const validatePermission = async function (permission, userId, projectId) {
         return hasPermission
 
     } catch (error) {
-        throw new ApiError(500, "INTERNAL SERVER ERROR: while validate the role")
+        console.error("Error generated while validating permission of users")
     }
 }
 
-export { userRoles, AvailableUserRoles, validatePermission }
+export { validatePermission }
 
 /**
          * ********* @Permissions Architecture **********

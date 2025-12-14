@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose"
-import { userRoles, AvailableUserRoles } from "../utils/permissions.utils.js"
+import { AvailableUserRolesPermission, userRolesEnum } from "../utils/constants.utils.js"
 
 export const userSchema = new Schema(
     {
@@ -44,8 +44,8 @@ export const userSchema = new Schema(
         },
         role: {
             type: String,
-            enum: AvailableUserRoles,
-            default: userRoles.Member
+            enum: AvailableUserRolesPermission,
+            default: userRolesEnum.Member
         },
         refreshToken: {
             type: String

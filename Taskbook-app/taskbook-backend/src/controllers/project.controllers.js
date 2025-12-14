@@ -1,35 +1,48 @@
 import { ApiError } from "../utils/api-error.utils.js";
 import { ApiResponse } from "../utils/api-response.utils.js";
 import { asyncHandler } from "../utils/async-handler.utils.js";
-import { AvailableUserRoles, UserRolesEnum } from "../utils/constants.utils.js"
 import Project from "../models/project.model.js"
 import ProjectMember from "../models/projectmember.model.js"
 import User from "../models/user.model.js";
-import { promiseHooks } from "node:v8";
 import mongoose from "mongoose";
+import { AvailableProjectStatus, AvailableUserRolesPermission, userRolesEnum } from "../utils/constants.utils.js";
 
 const createProject = asyncHandler(async (req, res) => {
 
     // get project_name, project_description, project_members, project_deadline from the body
-    const { projectName, projectDescription } = req.body
+    const { projectName, projectDescription, projectDueDate, uniqueProjectIdentifier, status } = req.body
 
     // validate the input data
     if (!projectName || !projectDescription) {
         throw new ApiError(400, "All fields marked with * is required")
     }
 
+    if (!AvailableProjectStatus.includes(status)) {
+        throw new ApiError(400, "Project status type is irrelavant")
+    }
+
+    // const dueDate = new Date(projectDueDate)
+
+    // console.log("Due Date ==== ", dueDate);
+    // console.log(typeof dueDate);
+
     // create new project in db 
     const newProject = await Project.create({
         projectName: projectName,
+        uniqueProjectIdentifier: uniqueProjectIdentifier,
         projectDescription: projectDescription,
-        createdBy: req.user?._id
+        createdBy: req.user?._id,
+        projectDueDate: projectDueDate,
+        // projectRoles: projectRoles, // enhance by making it a global and patch type method
+        status: status
+        // addMembers: projectMembers
     })
 
     // create new projectMember in db
     const newProjectMember = await ProjectMember.create({
         user: req.user._id,
         project: newProject._id,
-        role: UserRolesEnum.ADMIN
+        role: userRolesEnum.ProjectAdmin
     })
 
     // save the db
@@ -37,7 +50,6 @@ const createProject = asyncHandler(async (req, res) => {
     await newProjectMember.save()
 
     // send success response to user
-
     return res
         .status(201)
         .json(
@@ -47,14 +59,13 @@ const createProject = asyncHandler(async (req, res) => {
 })
 
 const addMemberToProject = asyncHandler(async (req, res) => {
-    // get member's email, username, avatar, fullname, role from the body
-    const { email, username, role } = req.body
+    // get member's email, avatar, fullname, role from the body
+    const { email, role } = req.body
 
     // find user based on email
     const user = await User.findOne({
         email: email
     })
-
 
     if (!user) {
         throw new ApiError(404, "User not found")
@@ -153,7 +164,7 @@ const getProjectMembers = asyncHandler(async (req, res) => {
         ]
     )
 
-    console.log(getAllProjectMembers);
+    console.log("All project members:---------", getAllProjectMembers);
 
 
     return res
@@ -180,18 +191,22 @@ const updateMemberRole = asyncHandler(async (req, res) => {
     }
 
     // validate the role that is it available in the roleEnum
-    const validateRole = AvailableUserRoles.includes(newRole)
+    const validateRole = AvailableUserRolesPermission.includes(newRole)
 
     if (!validateRole) {
         throw new ApiError(400, "Role not exists")
     }
 
     // find the user in db and update the role to new one
-    let updatedProjectMember = await ProjectMember.findOne(
+    let updatedProjectMember = await ProjectMember.findOneAndUpdate(
         {
             user: userId,
             project: projectId
-        }
+        },
+        {
+            role: newRole
+        },
+        { new: true, runValidators: true }
     )
 
     if (!updatedProjectMember) {
@@ -207,7 +222,6 @@ const updateMemberRole = asyncHandler(async (req, res) => {
         .json(
             new ApiResponse(200, `Member role updated successfully`, updatedProjectMember)
         )
-
 })
 
 const removeMember = asyncHandler(async (req, res) => {
@@ -242,7 +256,6 @@ const getProjects = asyncHandler(async (req, res) => {
     }
     // get all projects
     // match all the projects the members was associated to
-    // output = array of all projects in object form
     const allProjects = await ProjectMember.aggregate(
         [
             // it matches all documents of project members with given user id
@@ -251,7 +264,7 @@ const getProjects = asyncHandler(async (req, res) => {
                     user: new mongoose.Types.ObjectId(userId)
                 }
             },
-            // it connects Project collection's document's field named _id and with ProjetMember collection's document's field named project and gives all matched documents in an array named as allProjects
+            // it connects Project collection's document's field named _id with ProjetMember collection's document's field named project and gives all matched documents in an array named as allProjects
             {
                 $lookup: {
                     from: "projects",
@@ -287,11 +300,14 @@ const getProjects = asyncHandler(async (req, res) => {
                     _id: 0,
                     allProjects: {
                         _id: 1,
-                        project_name: 1,
-                        project_description: 1,
+                        projectName: 1,
+                        projectDescription: 1,
                         totalProjectMembers: 1,
+                        uniqueProjectIdentifier: 1,
                         createdAt: 1,
-                        createdBy: 1
+                        projectDueDate: 1,
+                        createdBy: 1,
+                        status: 1
                     },
                     role: 1,
                 }
@@ -336,7 +352,7 @@ const getProjectById = asyncHandler(async (req, res) => {
 const updateProject = asyncHandler(async (req, res) => {
 
     // get projectname and projectDescription from the body
-    const { projectName, projectDescription } = req.body
+    const { projectName, projectDescription, projectDueDate, uniqueProjectIdentifier } = req.body
     const { projectId } = req.params
 
     // validate the project Id, name and desc
@@ -347,7 +363,12 @@ const updateProject = asyncHandler(async (req, res) => {
     // update the value in db
     const updatedProject = await Project.findByIdAndUpdate(
         projectId,
-        { projectName, projectDescription },
+        {
+            projectName: projectName,
+            projectDescription: projectDescription,
+            projectDueDate: projectDueDate,
+            uniqueProjectIdentifier: uniqueProjectIdentifier
+        },
         { new: true, runValidators: true }
     )
 
@@ -360,6 +381,42 @@ const updateProject = asyncHandler(async (req, res) => {
         .status(202)
         .json(
             new ApiResponse(202, "Project Updated Successfully", updatedProject)
+        )
+})
+
+const updateProjectStatus = asyncHandler(async (req, res) => {
+    // get the project status from the body
+    const { status } = req.body
+
+    // get the projectid from the params
+    const { projectId } = req.params
+
+    // validate the project status and project id
+    if (!projectId) {
+        throw new ApiError(400, "Invalid project id")
+    }
+
+    if (!AvailableProjectStatus.includes(status)) {
+        throw new ApiError(400, "Invalid status type")
+    }
+
+    // get the project from the db and update the status of the project
+    const project = await Project.findByIdAndUpdate(projectId,
+        {
+            status: status
+        },
+        { new: true, runValidators: true }
+    )
+
+    if (!project) {
+        throw new ApiError(404, "Project not found")
+    }
+
+    // send success response to user
+    res
+        .status(202)
+        .json(
+            new ApiResponse(202, "Project status updated successfully", project.status)
         )
 })
 
@@ -394,5 +451,4 @@ const deleteProject = asyncHandler(async (req, res) => {
 
 })
 
-
-export { createProject, getProjects, getProjectById, updateProject, deleteProject, getProjectMembers, addMemberToProject, updateMemberRole, removeMember }
+export { createProject, getProjects, getProjectById, updateProject, updateProjectStatus, deleteProject, getProjectMembers, addMemberToProject, updateMemberRole, removeMember }
