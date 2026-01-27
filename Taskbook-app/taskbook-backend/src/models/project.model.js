@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+ import mongoose, { Schema } from "mongoose";
 import { AvailableProjectStatus, ProjectStatusEnum } from "../utils/constants.utils.js";
 
 const project = new Schema(

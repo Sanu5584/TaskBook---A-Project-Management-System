@@ -47,15 +47,20 @@ const register = asyncHandler(async (req, res) => {
 
     // - upload avatar file to cloudinary
     let avatarUrl;
-    const avatarPath = req.file?.avatar
+    const avatarPath = req.file?.path
+    console.log("New User Avatar Path: ", avatarPath);
+    console.log("Pura ka pura file object hii utha liya ---- ", req.file);
+
 
     if (avatarPath) avatarUrl = await uploadOnCloudinary(avatarPath)
 
+    console.log("New User Avatar URL: ", avatarUrl);
+
     if (avatarPath && avatarUrl) {
-        newUser.avatar({
-            url: avatarUrl,
-            path: avatarPath
-        })
+        newUser.avatar = {
+            url: avatarUrl.secure_url,
+            path: avatarUrl.public_id
+        }
     }
 
     // - save the verfication token in db
@@ -77,7 +82,7 @@ const register = asyncHandler(async (req, res) => {
     }
 
     res.status(201).json(
-        new ApiResponse(401, "User registered successfully", { newUser: createdUser })
+        new ApiResponse(201, "User registered successfully", { newUser: createdUser })
     )
 
 })

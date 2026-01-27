@@ -82,4 +82,31 @@ const forgotPasswordRequestMailGenContent = (user, verificationUrl) => {
     }
 }
 
-export { sendMail, emailVerificationMailgenContent, forgotPasswordRequestMailGenContent }
+const inviteMemberToWorkspaceMailgenContent = (user, acceptInviteLink, rejectInviteLink ,jobTitle) => {
+    return {
+        body: {
+            name: user,
+            intro: "Welcome to Taskbook!, {{user}}",
+            action: [
+                {
+                    instructions: "The link will be expired in next 24hrs. \nPlease click anyone to respond to the invitation request. \nThe Job Title is {{jobTitle}}",
+                    button: {
+                        color: '#22BC66', // Optional action button color
+                        text: 'Accept Invitation',
+                        link: acceptInviteLink
+                    }
+                },
+                {
+                    button: {
+                        color: '#22BC66', // Optional action button color
+                        text: 'Reject Invitation',
+                        link: rejectInviteLink
+                    }
+                }
+            ],
+            outro: 'This email is automated, so don\'t reply, if you need any help feel free to contact our customer support'
+        }
+    }
+}
+
+export { sendMail, emailVerificationMailgenContent, forgotPasswordRequestMailGenContent, inviteMemberToWorkspaceMailgenContent }

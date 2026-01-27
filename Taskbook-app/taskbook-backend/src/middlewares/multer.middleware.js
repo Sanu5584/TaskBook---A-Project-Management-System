@@ -5,11 +5,12 @@ import { asyncHandler } from "../utils/async-handler.utils.js"
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, "../../public/images")
+        cb(null, "./public/images")
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-        cb(null, `${file.fieldname} - ${uniqueSuffix}`)
+        const filename = `${file.fieldname}-${uniqueSuffix}`
+        cb(null, filename)
     }
 })
 
@@ -31,10 +32,20 @@ const uploadedFile = multer({
     fileFilter
 })
 
-// multer error handler
-const singleFileHandler = (fieldname) => {
+// multer upload handler
+const uploadFileHandler = (fieldname) => {
     return asyncHandler((req, res, next) => {
-        const upload = uploadedFile.single(fieldname)
+        let upload;
+        if (Array.isArray(fieldname)) {
+            upload = uploadedFile.array(fieldname, 60)
+            console.log("upload in mutler array file handler", upload);
+        } else if (typeof fieldname === "string") {
+            upload = uploadedFile.single(fieldname)
+            console.log("upload in mutler single file handler", upload);
+        } else {
+            throw new ApiError(404, "Type of fieldname should be string or array")
+        }
+
         upload(req, res, function (err) {
             if (err instanceof multer.MulterError) {
                 switch (err.code) {
@@ -60,8 +71,13 @@ const singleFileHandler = (fieldname) => {
     })
 }
 
-const upload = {
-    single: singleFileHandler
-}
+export { uploadFileHandler }
 
-export { upload }
+
+// user --> user uploads the file --> the file was saved into our server   (now that file can be previewed by the user to validate the file)
+
+// if file was correct than user clicks save to save the file into cloudinary
+
+// file was saved in cloud after user clicks save and after that uploadOnCloudinary controller was functioned
+
+//* Attachments section teaches me ---> file compression before upload, queuing system, complex file handling and uploading, cron jobs, etc...

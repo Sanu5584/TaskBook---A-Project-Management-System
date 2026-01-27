@@ -23,7 +23,6 @@ const router = Router()
 
 router.use(isLoggedIn)
 
-
 router.route("/create").post(createProjectValidators(), validate, createProject)
 
 router.route("/:projectId/project-members").get(hasPermission('view:project'), getProjectMembers)
@@ -43,6 +42,5 @@ router.route("/:projectId/update").patch(hasPermission('edit:project'), updatePr
 router.route("/:projectId/update-status").patch(hasPermission('edit:project'), updateProjectStatusValidators(), validate, updateProjectStatus)
 
 router.route("/:projectId/delete").delete(hasPermission('delete:project'), deleteProject)
-
 
 export default router

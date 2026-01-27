@@ -2,13 +2,13 @@ import { Router } from "express"
 
 import { register, verifyUser, resendEmailVerification, login, logout, changeCurrentPassword, forgotPasswordRequest, resetForgottenPassword, getUser, refreshAccessToken } from "../controllers/auth.controllers.js"
 import validate from "../middlewares/validate.middleware.js"
-import { upload } from "../middlewares/multer.middleware.js"
+import { uploadFileHandler } from "../middlewares/multer.middleware.js"
 import { changeCurrentPasswordValidators, forgotPasswordRequestValidator, loginUserValidators, resendEmailVerificationValidator, resetForgottenPasswordValidator, userRegistrationValidator } from "../validators/auth.validations.js"
 import { isLoggedIn } from "../middlewares/auth.middleware.js"
 
 const router = Router()
 
-router.route("/register").post(upload.single('avatar'), userRegistrationValidator(), validate, register)
+router.route("/register").post(uploadFileHandler('avatar'), userRegistrationValidator(), validate, register)
 
 router.route("/verify-email/:verificationToken").get(verifyUser)
 

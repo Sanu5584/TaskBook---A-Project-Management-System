@@ -49,23 +49,23 @@ export const userPermissions = {
         "view:subTask",
         "edit:subTask"
     ],
-    SubAdmin: [
-        //* for projects
-        "create:project",
-        "edit:project",
-        "view:project",
-        "addMember:project",
-        "updateMember:project",
-        "removeMember:project",
+    // SubAdmin: [
+    //     //* for projects
+    //     "create:project",
+    //     "edit:project",
+    //     "view:project",
+    //     "addMember:project",
+    //     "updateMember:project",
+    //     "removeMember:project",
 
-        //* for tasks
-        "edit:task",
-        "view:task",
+    //     //* for tasks
+    //     "edit:task",
+    //     "view:task",
 
-        //* for subTasks
-        "view:subTask",
-        "edit:subTask"
-    ],
+    //     //* for subTasks
+    //     "view:subTask",
+    //     "edit:subTask"
+    // ],
     ProjectAdmin: [
         //* for projects
         "edit:project",

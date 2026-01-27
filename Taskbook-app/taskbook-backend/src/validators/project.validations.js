@@ -1,4 +1,5 @@
 import { body } from "express-validator"
+import { AvailableProjectStatus } from "../utils/constants.utils.js"
 
 const createProjectValidators = () => {
     return [
@@ -30,6 +31,7 @@ const createProjectValidators = () => {
         body("status")
             .isString()
             .notEmpty()
+            .isIn(AvailableProjectStatus).withMessage("Project Status is Invalid")
             .trim()
     ]
 }

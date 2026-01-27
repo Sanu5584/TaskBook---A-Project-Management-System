@@ -18,9 +18,8 @@ const task = new Schema(
             required: true
         },
         assignedTo: {
-            type: Schema.Types.ObjectId,
-            ref: "User",
-            required: true
+            type: String,
+            trim: true
         },
         assignedBy: {
             type: Schema.Types.ObjectId,

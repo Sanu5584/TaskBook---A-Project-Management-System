@@ -9,7 +9,7 @@ export const userSchema = new Schema(
                 path: String
             },
             default: {
-                url: `https://via.placeholder.com/200x200.png`,
+                url: `https://placehold.co/400x400`,
                 path: ""
             }
         },

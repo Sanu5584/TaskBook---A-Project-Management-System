@@ -43,7 +43,7 @@ const createProject = asyncHandler(async (req, res) => {
         user: req.user._id,
         project: newProject._id,
         role: userRolesEnum.ProjectAdmin
-    })
+    })  
 
     // save the db
     await newProject.save()

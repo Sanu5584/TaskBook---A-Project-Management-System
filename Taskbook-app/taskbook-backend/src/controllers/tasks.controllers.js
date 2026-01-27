@@ -7,6 +7,7 @@ import { uploadOnCloudinary } from "../configs/cloudinary.config.js";
 import mongoose from "mongoose";
 import { ApiResponse } from "../utils/api-response.utils.js";
 import { AvailableTaskStatus } from "../utils/constants.utils.js";
+import ProjectMember from "../models/projectmember.model.js";
 
 const createTask = asyncHandler(async (req, res) => {
     // get title, description, assignedTo, status from the body
@@ -26,8 +27,55 @@ const createTask = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Unauthorized Request")
     }
 
-    // check that the status's value is presents in the taskStatusEnum
+    // check that the status's value is presents in the AvailableTaskStatus
+    if (!AvailableTaskStatus.includes(status)) {
+        throw new ApiError(400, "Invalid task status")
+    }
 
+    // check the assigning member is part of project or not
+    const isProjectMember = await ProjectMember.aggregate(
+        [
+            {
+                $match: {
+                    project: new mongoose.Types.ObjectId(projectId)
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "user",
+                    foreignField: "_id",
+                    as: "projectMember",
+                    pipeline: [
+                        {
+                            $project: {
+                                avatar: 1,
+                                email: 1,
+                                role: 1
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                $match: {
+                    project: new mongoose.Types.ObjectId(projectId),
+                    user: "$projectMember.email"
+                }
+            },
+            {
+                $project: {
+                    user: 1,
+                    projectMember: 1,
+                    project: 1,
+                }
+            }
+        ]
+
+    )
+    
+    console.log("Project Member checking", isProjectMember);
+    console.log(`AssignedTo value: ${assignedTo} --- filtered Value: ${isProjectMember}`);
 
     // create task in db
     const createTask = await Task.create({
@@ -43,7 +91,7 @@ const createTask = asyncHandler(async (req, res) => {
     // ---- get the files from the body
     const files = req?.files || []
 
-    console.log(files);
+    console.log("Files in create task controller: ", files);
 
     //  process all files and upload to cloudinary
     const attachments = await Promise.all(
@@ -54,7 +102,7 @@ const createTask = asyncHandler(async (req, res) => {
                 url: result?.secure_url,
                 name: file.name,
                 mimetype: file.mimetype,
-                size: (file.size * 1024 * 1024),
+                 size: (file.size * 1024 * 1024),
             }
         })
     )
@@ -62,7 +110,6 @@ const createTask = asyncHandler(async (req, res) => {
     console.log("Attachments : ", attachments);
 
     createTask.attachments = attachments
-
 
     // save the db
     await createTask.save()
@@ -263,7 +310,7 @@ const getTaskById = asyncHandler(async (req, res) => {
         )
 })
 
-const updateTaskName = asyncHandler(async (req, res) => {
+const updateTaskTitle = asyncHandler(async (req, res) => {
     //  get the task id from the params
     const { taskId, projectId } = req.params
 
@@ -399,7 +446,95 @@ const updateTaskAssignees = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Task not found or Unauthorized access")
     }
 
-    // check if assignedTo value is from the projectMember's enum only // ! implement this
+    // check if assignedTo value is from the projectMember's enum only 
+    const isProjectMember = await ProjectMember.aggregate(
+        // [
+        //     {
+        //         $match: {
+        //             $or: [{ "$username": assignedTo }, { "$email": assignedTo }]
+        //         }
+        //     },
+        //     {
+        //         $lookup: {
+        //             from: "projectmembers",
+        //             localField: "_id",
+        //             foreignField: "user",
+        //             as: "matchedUser",
+
+        //             pipeline: [
+        //                 {
+        //                     $match: {
+        //                         project: projectId,
+        //                         user: matchedUser
+        //                     }
+        //                 },
+        //                 {
+        //                     $project: {
+        //                         project: 1,
+        //                         user: 1,
+        //                         role: 1   
+        //                     }
+        //                 }
+        //             ]
+        //         }
+        //     },
+        //     {
+        //         $project: {
+        //             avatar: 1,
+        //             username: 1,
+        //             email: 1,
+        //             role: 1
+        //         } 
+        //     }
+        // ]
+
+        [
+            {
+                $match: {
+                    project: new mongoose.Types.ObjectId(projectId)
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "user",
+                    foreignField: "_id",
+                    as: "projectMember",
+                    pipeline: [
+                        {
+                            $project: {
+                                avatar: 1,
+                                username: 1,
+                                email: 1,
+                                fullname: 1,
+                                role: 1
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                $match: {
+                    project: new mongoose.Types.ObjectId(projectId),
+                    user: {
+                        $or: [{ username: assignedTo }, { email: assignedTo }]
+                    }
+                }
+            },
+            {
+                $project: {
+                    user: 1,
+                    ProjectMember: 1,
+                    project: 1,
+                }
+            }
+        ]
+
+    )
+
+    console.log("Project Member checking", isProjectMember);
+    console.log(`AssignedTo value: ${assignedTo} --- filtered Value: ${isProjectMember}`);
+    //* Check and see the outcome to further process and customise the controller
 
     // update the assignee
     existedTask.assignedTo = assignedTo
@@ -668,7 +803,7 @@ const getSubTasks = asyncHandler(async (req, res) => {
 const getSubTaskById = asyncHandler(async (req, res) => {
     // get the projectId and taskId from the params
     const { projectId, taskId, subTaskId } = req.params
- 
+
     // validate the project and taskId via middleware or an external function
     if (!projectId) {
         throw new ApiError(404, "Project Not Found or Unauthorized request")
@@ -710,7 +845,7 @@ const getSubTaskById = asyncHandler(async (req, res) => {
         .populate({ path: "createdBy", select: "email avatar" })
         .exec()
         .then((subTask) => console.log(subTask))
-        .catch((err) => console.log(err)) 
+        .catch((err) => console.log(err))
 
     //send success response to user
     res
@@ -747,7 +882,7 @@ const deleteSubTask = asyncHandler(async (req, res) => {
     // check the user id is authorized to delete subTask
 
     // delete the subTask from the body
-    await SubTask.findByIdAndDelete(existedSubTask._id) 
+    await SubTask.findByIdAndDelete(existedSubTask._id)
 
     // send success response to user  
     res
@@ -790,4 +925,62 @@ const deleteTask = asyncHandler(async (req, res) => {
         )
 })
 
-export { createTask, getTasks, getTaskById, updateTaskName, updateTaskDescription, updateTaskStatus, updateTaskAssignees, createSubTask, updateSubTaskTitle, updateSubTaskDescription, subTaskIsCompleted, getSubTasks, getSubTaskById, deleteSubTask, deleteTask }
+const addAttachmentsToUpload = asyncHandler(async (req, res) => {
+    // get the projectId, userId, taskId from the params
+    // validate the params
+    // find the user and project on basis of the received params
+    // get the attachments from the user
+    //^ if possible compress the attachment files
+    //! do not upload them to cloudinary
+    // store them in session/diskStorage for a while
+    //^ if possible set the timer of around 24-48 hrs after that the files were automatically deleted if not uploaded in this time period 
+    // send success response to user
+})
+
+const removeAllAttachmentsFromUpload = asyncHandler(async (req, res) => {
+    // get the projectId, userId, taskId from the params
+    // validate the params
+    // find the user and project on basis of the received params
+    // remove all attachments to prevent from upload
+    //^ use ACID properties if possible
+    // send success response to user
+})
+
+const removeAttachmentByIdFromUpload = asyncHandler(async (req, res) => {
+    // get the projectId, userId, taskId from the params
+    // validate the params
+    // find the user and project on basis of the received params
+    // get the selected attachments and remove that file to prevent from upload
+    //^ use ACID properties if possible
+    // send success response to user
+})
+
+const uploadAllAttachments = asyncHandler(async (req, res) => {
+    // get the projectId, userId, taskId from the params
+    // validate the params
+    // find the user and project on basis of the received params
+    // upload all attachments to cloudinary
+    //^ if possible implement queues to upload the files one by one reducing the load on the server
+    // delete all attachments from the temporary storage(disk/session)
+    // send success response to user
+})
+
+const deleteAllUploadedAttachments = asyncHandler(async (req, res) => {
+    // get the projectId, userId, taskId from the params
+    // validate the params
+    // find the user and project on basis of the received params
+    // get the attachments from the user
+    // delete it from the cloudinary
+    // send success response to user
+})
+
+const deleteUploadedAttachmentsById = asyncHandler(async (req, res) => {
+    // get the projectId, userId, taskId from the params
+    // validate the params
+    // find the user and project on basis of the received params
+    // get the attachment from the user
+    // delete it from the cloudinary
+    // send success response to user
+})
+
+export { createTask, getTasks, getTaskById, updateTaskTitle, updateTaskDescription, updateTaskStatus, updateTaskAssignees, createSubTask, updateSubTaskTitle, updateSubTaskDescription, subTaskIsCompleted, getSubTasks, getSubTaskById, deleteSubTask, deleteTask }
