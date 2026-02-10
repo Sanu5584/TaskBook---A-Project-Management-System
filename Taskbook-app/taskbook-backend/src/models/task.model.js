@@ -26,21 +26,25 @@ const task = new Schema(
             ref: "User",
             required: true
         },
+        attachments: {
+            type: Schema.Types.ObjectId,
+            ref: "Attachments"
+        },
         status: {
             type: String,
             enum: AvailableTaskStatus,
             default: TaskStatusEnum.TODO
         },
-        attachments: {
-            type: [
-                {
-                    url: String,
-                    mimeType: String,
-                    size: Number
-                },
-            ],
-            default: []
-        },
+        // attachments: {
+        //     type: [
+        //         {
+        //             url: String,
+        //             mimeType: String,
+        //             size: Number
+        //         },
+        //     ],
+        //     default: []
+        // },
     },
     {
         timestamps: true

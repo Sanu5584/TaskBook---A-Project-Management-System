@@ -52,7 +52,7 @@ const register = asyncHandler(async (req, res) => {
     console.log("Pura ka pura file object hii utha liya ---- ", req.file);
 
 
-    if (avatarPath) avatarUrl = await uploadOnCloudinary(avatarPath)
+    if (avatarPath) avatarUrl = await uploadOnCloudinary(avatarPath, "avatar")
 
     console.log("New User Avatar URL: ", avatarUrl);
 

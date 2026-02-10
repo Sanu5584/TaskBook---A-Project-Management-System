@@ -47,7 +47,12 @@ export const userPermissions = {
         "create:subTask",
         "delete:subTask",
         "view:subTask",
-        "edit:subTask"
+        "edit:subTask",
+
+        //* for attachments
+        "upload:attachments",
+        "delete:attachments",
+        "view:attachments"
     ],
     // SubAdmin: [
     //     //* for projects
@@ -87,7 +92,12 @@ export const userPermissions = {
         "create:subTask",
         "delete:subTask",
         "view:subTask",
-        "edit:subTask"
+        "edit:subTask",
+
+        //* for attachments
+        "upload:attachments",
+        "delete:attachments",
+        "view:attachments"
     ],
     Member: [
         //* for projects
@@ -106,7 +116,11 @@ export const userPermissions = {
         "create:subTask",
         "delete:subTask",
         "view:subTask",
-        "edit:subTask"
+        "edit:subTask",
+
+        //* for attachments
+        "upload:attachments",
+        "view:attachments"
     ],
     // WorkspaceMemberReadOnly: [
     //     //* for projects

@@ -9,7 +9,7 @@ const storage = multer.diskStorage({
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-        const filename = `${file.fieldname}-${uniqueSuffix}`
+        const filename = `${file.filename}-${uniqueSuffix}`
         cb(null, filename)
     }
 })
@@ -29,21 +29,19 @@ const fileFilter = function (req, file, cb) {
 const uploadedFile = multer({
     storage,
     limits,
-    fileFilter
+    fileFilter,
 })
 
+
+
 // multer upload handler
-const uploadFileHandler = (fieldname) => {
+const uploadFileHandler = (fieldname, isMultipleFile = false) => {
     return asyncHandler((req, res, next) => {
         let upload;
-        if (Array.isArray(fieldname)) {
-            upload = uploadedFile.array(fieldname, 60)
-            console.log("upload in mutler array file handler", upload);
-        } else if (typeof fieldname === "string") {
-            upload = uploadedFile.single(fieldname)
-            console.log("upload in mutler single file handler", upload);
+        if (isMultipleFile === true) {
+            upload = uploadedFile.array(fieldname, 25)
         } else {
-            throw new ApiError(404, "Type of fieldname should be string or array")
+            upload = uploadedFile.single(fieldname)
         }
 
         upload(req, res, function (err) {
@@ -72,12 +70,3 @@ const uploadFileHandler = (fieldname) => {
 }
 
 export { uploadFileHandler }
-
-
-// user --> user uploads the file --> the file was saved into our server   (now that file can be previewed by the user to validate the file)
-
-// if file was correct than user clicks save to save the file into cloudinary
-
-// file was saved in cloud after user clicks save and after that uploadOnCloudinary controller was functioned
-
-//* Attachments section teaches me ---> file compression before upload, queuing system, complex file handling and uploading, cron jobs, etc...

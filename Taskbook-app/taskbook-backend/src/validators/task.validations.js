@@ -67,7 +67,55 @@ const updateTaskAssigneesValidators = () => {
 }
 
 const createSubTaskValidators = () => {
-    
+    return [
+        body("subTaskTitle")
+            .trim()
+            .notEmpty().withMessage("SubTask Title is required")
+            .isString()
+            .isLength({ min: 3 }).withMessage("SubTask Title must required minimum length of 3 characters")
+            .isLength({ max: 320 }).withMessage("SubTask title must contains less than 320 characters"),
+        body("subTaskDescription")
+            .trim()
+            .optional()
+            .isString()
+            .isLength({ max: 600 }).withMessage("SubTask description must contains less than 600 characters"),
+        body("subTaskCompletionStatus")
+            .trim()
+            .notEmpty().withMessage("SubTask status is required")
+            .isString()
+            .isIn(AvailableTaskStatus).withMessage("SubTask Status is Invalid"),
+    ]
 }
 
-export { createTaskValidators, updateTaskTitleValidators, updateTaskDescriptionValidators, updateTaskStatusValidators, updateTaskAssigneesValidators }
+const updateSubTaskTitleValidators = () => {
+    return [
+        body("subTaskTitle")
+            .trim()
+            .notEmpty().withMessage("SubTask Title is required")
+            .isString()
+            .isLength({ min: 3 }).withMessage("SubTask Title must required minimum length of 3 characters")
+            .isLength({ max: 320 }).withMessage("SubTask title must contains less than 320 characters"),
+    ]
+}
+
+const updateSubTaskDescriptionValidators = () => {
+    return [
+        body("description")
+            .optional()
+            .trim()
+            .isString()
+            .isLength({ max: 600 }).withMessage("Task description must contains less than 600 characters"),
+    ]
+}
+
+const subTaskIsCompletedValidators = () => {
+    return [
+        body("status")
+            .trim()
+            .notEmpty().withMessage("Task status is required")
+            .isString()
+            .isIn(AvailableTaskStatus).withMessage("Task Status is Invalid"),
+    ]
+}
+
+export { createTaskValidators, updateTaskTitleValidators, updateTaskDescriptionValidators, updateTaskStatusValidators, updateTaskAssigneesValidators, createSubTaskValidators, updateSubTaskTitleValidators, updateSubTaskDescriptionValidators, subTaskIsCompletedValidators }
